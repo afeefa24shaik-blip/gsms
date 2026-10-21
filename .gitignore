@@ -1,0 +1,23 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+
+# Static collected & Media
+staticfiles/
+media/
+
+# Environment secrets
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp

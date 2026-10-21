@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Gift Categories - GSMS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="brand-font mb-1 text-dark">Gift Categories</h2>
+        <p class="text-muted mb-0">Organize boutique items by department and gift style.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Category Creation Form -->
+    <div class="col-12 col-lg-4">
+        <div class="card card-modern">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-folder-plus text-primary me-2"></i> Add New Category</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Category Name *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">Save Category</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Table -->
+    <div class="col-12 col-lg-8">
+        <div class="card card-modern">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th class="text-center">Active Products</th>
+                                <th class="text-end">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in categories %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ c.name }}</td>
+                                <td class="small text-muted">{{ c.description|default:"-" }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary-subtle text-primary">{{ c.product_count }} items</span>
+                                </td>
+                                <td class="text-end small text-muted">{{ c.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No categories created yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

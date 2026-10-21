@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gift Shop Management System{% endblock %} - {{ SHOP_NAME }}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Application CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top no-print">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                <span class="fs-4 text-warning"><i class="fa-solid fa-gift"></i></span>
+                <div>
+                    <span class="brand-font fs-5 text-white">{{ SHOP_NAME }}</span>
+                    <span class="navbar-brand-badge ms-1">GSMS</span>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="mainNav">
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="fa-solid fa-chart-pie me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    {% if user.is_sales_role %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom fw-semibold text-warning {% if request.resolver_match.url_name == 'pos_view' %}active{% endif %}" href="{% url 'pos_view' %}">
+                            <i class="fa-solid fa-cash-register me-1"></i> POS / Billing
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_inventory_role %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-link-custom dropdown-toggle {% if 'product' in request.path or 'inventory' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-boxes-stacked me-1"></i> Inventory
+                            {% if low_stock_count > 0 %}
+                            <span class="badge rounded-pill bg-danger ms-1">{{ low_stock_count }}</span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-lg">
+                            <li><a class="dropdown-item" href="{% url 'product_list' %}"><i class="fa-solid fa-list me-2 text-primary"></i> All Products</a></li>
+                            {% if user.is_manager_role %}
+                            <li><a class="dropdown-item" href="{% url 'product_create' %}"><i class="fa-solid fa-plus-circle me-2 text-success"></i> Add New Product</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'category_list' %}"><i class="fa-solid fa-tags me-2 text-info"></i> Categories</a></li>
+                            <li><a class="dropdown-item" href="{% url 'supplier_list' %}"><i class="fa-solid fa-truck-field me-2 text-warning"></i> Suppliers</a></li>
+                            <li><a class="dropdown-item" href="{% url 'stock_movements' %}"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> Stock Movements Log</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_sales_role %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}" href="{% url 'customer_list' %}">
+                            <i class="fa-solid fa-users me-1"></i> Customers
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_manager_role %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-link-custom dropdown-toggle {% if 'report' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Reports
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-lg">
+                            <li><a class="dropdown-item" href="{% url 'sales_report' %}"><i class="fa-solid fa-chart-line me-2 text-primary"></i> Sales Report</a></li>
+                            <li><a class="dropdown-item" href="{% url 'inventory_report' %}"><i class="fa-solid fa-warehouse me-2 text-warning"></i> Inventory Valuation</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_admin_role %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if 'users' in request.path %}active{% endif %}" href="{% url 'user_list' %}">
+                            <i class="fa-solid fa-user-shield me-1"></i> Staff RBAC
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge px-3 py-2 rounded-pill 
+                        {% if user.role == 'Admin' %}badge-role-admin
+                        {% elif user.role == 'Manager' %}badge-role-manager
+                        {% elif user.role == 'Sales Staff' %}badge-role-sales
+                        {% else %}badge-role-inventory{% endif %} fw-semibold">
+                        <i class="fa-solid fa-id-badge me-1"></i> {{ user.role }}
+                    </span>
+
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-regular fa-circle-user"></i>
+                            <span class="fw-medium">{{ user.name|default:user.username }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                            <li class="px-3 py-2 text-muted small border-bottom">
+                                Signed in as<br><strong class="text-dark">{{ user.email }}</strong>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}">
+                                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div class="ms-auto">
+                    <a href="{% url 'login' %}" class="btn btn-sm btn-outline-light rounded-pill px-4">Sign In</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="flex-grow-1 py-4">
+        <div class="container-fluid px-lg-4">
+            <!-- Messages / Notifications -->
+            {% if messages %}
+                <div class="messages-container mb-4 no-print">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center gap-2" role="alert">
+                            {% if message.tags == 'success' %}
+                                <i class="fa-solid fa-circle-check fs-5 text-success"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="fa-solid fa-circle-exclamation fs-5 text-danger"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation fs-5 text-warning"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info fs-5 text-primary"></i>
+                            {% endif %}
+                            <div class="flex-grow-1">{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 bg-white border-top text-center text-muted small no-print">
+        <div class="container-fluid">
+            <span>&copy; {{ current_year|default:"2026" }} <strong>{{ SHOP_NAME }}</strong> - Gift Shop Management System (GSMS) &bull; 3-Layer Enterprise Architecture</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

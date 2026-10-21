@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Count Adjustment - GSMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card card-modern border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 fw-bold text-dark">
+                    <i class="fa-solid fa-sliders text-warning me-2"></i> Inventory Stock Adjustment
+                </h5>
+                <a href="{% url 'product_list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <div class="p-3 bg-light rounded mb-4">
+                    <div class="fw-bold text-dark fs-5">{{ product.name }}</div>
+                    <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+                        <span>SKU: <strong class="font-monospace text-dark">{{ product.code }}</strong></span>
+                        <span>Current System Count: <strong class="fs-6 text-dark">{{ product.stock_qty }}</strong> units</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info py-2 small border-0 mb-4">
+                    <i class="fa-solid fa-circle-info me-1"></i> Use this form to reconcile physical inventory counts or record damaged/broken items. An audit log will be permanently stored in `StockMovement`.
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">New Verified Stock Count *</label>
+                        {{ form.new_quantity }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-secondary">Audit Reason *</label>
+                        {{ form.reason }}
+                        <small class="text-muted">e.g. "Monthly physical inventory audit", "2 units damaged during customer handling"</small>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a href="{% url 'product_list' %}" class="btn btn-light border px-4">Cancel</a>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold px-4">
+                            <i class="fa-solid fa-check me-1"></i> Commit Adjustment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

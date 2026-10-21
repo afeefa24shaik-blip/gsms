@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers Directory - GSMS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="brand-font mb-1 text-dark">Merchandise Suppliers</h2>
+        <p class="text-muted mb-0">Manage wholesale vendors, artisans, and distributors.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Supplier Creation Form -->
+    <div class="col-12 col-lg-4">
+        <div class="card card-modern">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-truck-field text-warning me-2"></i> Register New Supplier</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Supplier / Vendor Name *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Phone Number *</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Email Address *</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Warehouse Address</label>
+                        {{ form.address }}
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">Add Supplier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Table -->
+    <div class="col-12 col-lg-8">
+        <div class="card card-modern">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Vendor Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in suppliers %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ s.name }}</td>
+                                <td class="small">{{ s.phone }}</td>
+                                <td class="small"><a href="mailto:{{ s.email }}" class="text-decoration-none">{{ s.email }}</a></td>
+                                <td class="small text-muted">{{ s.address|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No suppliers registered yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Movements Audit Log - GSMS{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="brand-font mb-1 text-dark">Inventory Audit & Movement Trail</h2>
+        <p class="text-muted mb-0">Traceable historical ledger of all stock additions, sales, returns, and manual adjustments.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary px-3 py-2">
+            <i class="fa-solid fa-boxes-stacked me-1"></i> Back to Products
+        </a>
+    </div>
+</div>
+
+<div class="card card-modern">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Product / Code</th>
+                        <th class="text-center">Movement Type</th>
+                        <th class="text-center">Quantity Delta</th>
+                        <th>Logged By</th>
+                        <th>Audit Reason / Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movements %}
+                    <tr>
+                        <td class="small text-muted font-monospace">{{ m.date|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ m.product.name }}</div>
+                            <span class="badge bg-light text-secondary border font-monospace">{{ m.product.code }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if m.movement_type == 'received' %}
+                            <span class="badge bg-success-subtle text-success text-uppercase">Received</span>
+                            {% elif m.movement_type == 'sold' %}
+                            <span class="badge bg-primary-subtle text-primary text-uppercase">Sold (POS)</span>
+                            {% elif m.movement_type == 'returned' %}
+                            <span class="badge bg-info-subtle text-info text-uppercase">Returned</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning text-uppercase">Adjusted</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center font-monospace fw-bold">
+                            {% if m.quantity > 0 %}
+                            <span class="text-success">+{{ m.quantity }}</span>
+                            {% else %}
+                            <span class="text-danger">{{ m.quantity }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ m.user.name|default:m.user.username }}</td>
+                        <td class="small text-muted">{{ m.reason|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-clock-rotate-left fa-3x mb-2 text-secondary opacity-50"></i>
+                            <p class="mb-0">No inventory movements recorded yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
