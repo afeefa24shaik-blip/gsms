@@ -8,7 +8,9 @@ if app_dir not in sys.path:
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gsms_project.settings')
 
-from gsms_project.wsgi import application, app
+from gsms_project.wsgi import application, app, init_serverless_database
 
-# Vercel entrypoint
+# Ensure serverless database is initialized
+init_serverless_database()
+
 handler = app
