@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Gift Shop Management System (GSMS)",
   "scripts": {
-    "dev": "venv\\Scripts\\python.exe manage.py runserver 127.0.0.1:8000",
-    "start": "venv\\Scripts\\python.exe manage.py runserver 127.0.0.1:8000"
+    "build": "python3 manage.py collectstatic --noinput || true"
   }
 }

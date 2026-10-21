@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -48,6 +49,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'gsms_project.urls'
+
+# CSRF Trusted Origins for Vercel
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 TEMPLATES = [
     {
@@ -68,9 +76,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gsms_project.wsgi.application'
 
-# Database configuration: SQLite default for local development, PostgreSQL ready for production
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL and 'postgres' in DATABASE_URL:
+# Database configuration: PostgreSQL ready (Vercel Postgres / Supabase / Neon), SQLite fallback
+DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+if DATABASE_URL and ('postgres' in DATABASE_URL or 'postgresql' in DATABASE_URL):
     import urllib.parse as urlparse
     url = urlparse.urlparse(DATABASE_URL)
     DATABASES = {
@@ -81,6 +89,14 @@ if DATABASE_URL and 'postgres' in DATABASE_URL:
             'PASSWORD': url.password,
             'HOST': url.hostname,
             'PORT': url.port or 5432,
+        }
+    }
+elif 'VERCEL' in os.environ:
+    # Serverless runtime has ephemeral read-only filesystem except /tmp
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/db.sqlite3',
         }
     }
 else:
@@ -121,6 +137,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+WHITENOISE_USE_FINDERS = True
 
 # Media files
 MEDIA_URL = '/media/'
